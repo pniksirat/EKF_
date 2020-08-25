@@ -122,6 +122,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
      double vx=ro_dot*cos(phi);
      double vy=ro_dot*sin(phi);
      
+      px=(px<0.01)? 0.01:px;
+      py=(py<0.01)? 0.01:py;
      
      ekf_.x_<<px,py,vx,vy;
 
@@ -155,6 +157,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   float noise_ay = 9.0;
   //ransform time from microseconds to seconds
   float dt=(measurement_pack.timestamp_- previous_timestamp_ )/ 1000000.0;
+  //cout<<"delta t:"<< dt<<endl;
   previous_timestamp_ = measurement_pack.timestamp_;
   
   float dt_4=pow(dt,4);

@@ -5,6 +5,7 @@
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 using std::cout;
+using std::endl;
 
 /* 
  * Please note that the Eigen library does not initialize 
@@ -83,33 +84,44 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   float ro=sqrt(pow(x_[0],2)+pow(x_[1],2));
   double phi=0;
   float ro_dot=0;
-  if (abs(ro)>0.0f) {
-    ro_dot=(x_[0]*x_[2]+x_[1]*x_[3])/ro;
-  }
   
-  if (x_(0,0)>0.0) {
+  
+  if (fabs(ro)<0.001) {
+    ro=0.001;  
+  }
+  ro_dot=(x_[0]*x_[2]+x_[1]*x_[3])/ro;
+  
+   
+  if (fabs(x_(0,0))>0.0f) {
   	phi=atan2(x_[1],x_[0]);
+  }
+  else{
+    phi=z(2);
   }
   
   //ro_dot=(x_(0,0)*x_(2,0)+x_(1,0)*x_(3,0))/ro;
   
-  MatrixXd h_x;
+  VectorXd h_x =VectorXd(3);
   //MatrixXd K;
   //MatrixXd S;
-  VectorXd y;
+  
   
   h_x<< ro, phi, ro_dot;
   
-  y=z-h_x;
+  VectorXd  y=z-h_x;
   
   //adjust angle at y[1]
-  if (y[1]<M_PI){
-  	y[1]-=2*M_PI;
+
+  if (y(1)>M_PI){
+  	y(1)-=2*M_PI;
+   // cout<<"here"<<endl;
   }
-  else if (y[1]<-M_PI){
-  	y[1]+=2*M_PI;
+  else if (y(1)<-M_PI){
+  	y(1)+=2*M_PI;
+   // cout<<"here2"<<endl;;
   }
-  
+ 
+ // cout<<"y is :"<<y(1)<<endl;
   /**
   S=H_*P_*H_.transpose()+R_;
   K=P_*H_.transpose()*S.inverse();
